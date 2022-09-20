@@ -1,0 +1,1 @@
+# react_catalog-of-goods
