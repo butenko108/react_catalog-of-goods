@@ -7,12 +7,29 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import { useAppSelector } from '../../app/hooks'
+import { FilterTypes } from '../../types/FilterTypes'
 
 export const GoodsList: React.FC = () => {
   const filteredProducts = useAppSelector(state => {
+    const { fromPrice, toPrice, status } = state.filter
     const products = [...state.products.productsFS]
+    const productsByPrice = products.filter(({ price }) => {
+      return price >= fromPrice && price <= toPrice
+    })
 
-    return products.sort((a, b) => a.price - b.price)
+    switch (status) {
+      case FilterTypes.PriceAscending:
+        return productsByPrice.sort((a, b) => a.price - b.price)
+
+      case FilterTypes.PriceDescending:
+        return productsByPrice.sort((a, b) => b.price - a.price)
+      
+      case FilterTypes.ByAlphabet:
+        return productsByPrice.sort((a, b) => a.name.localeCompare(b.name))
+      
+      default:
+        return productsByPrice
+    }
   })
 
   return (

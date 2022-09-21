@@ -1,15 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { Product } from '../types/Product'
+import { CurrencyTypes } from '../types/CurrencyTypes'
 
 export interface ProductsState {
   isLoading: boolean
   productsFS: Product[]
+  currency: CurrencyTypes
 }
 
 const initialState: ProductsState = {
   isLoading: false,
-  productsFS: []
+  productsFS: [],
+  currency: CurrencyTypes.UAH
 }
 
 export const productsSlice = createSlice({
@@ -21,10 +24,13 @@ export const productsSlice = createSlice({
     },
     setIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload
+    },
+    setCurrency: (state, action: PayloadAction<CurrencyTypes>) => {
+      state.currency = action.payload
     }
   }
 })
 
-export const { setProducts, setIsLoading } = productsSlice.actions
+export const { setProducts, setIsLoading, setCurrency } = productsSlice.actions
 
 export default productsSlice.reducer

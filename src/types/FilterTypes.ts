@@ -1,5 +1,5 @@
 export enum FilterTypes {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
+  PriceAscending = 'По возрастанию цены',
+  PriceDescending = 'По убыванию цены',
+  ByAlphabet = 'По алфавиту',
 }
