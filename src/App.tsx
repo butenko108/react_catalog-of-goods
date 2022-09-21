@@ -1,24 +1,22 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.css'
 import type { RootState } from './app/store'
 import { useSelector, useDispatch } from 'react-redux'
 import { decrement, increment } from './features/counterSlice'
+import { setProducts, setIsLoading } from './features/productsSlice'
 import { styled } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
-import { products } from './api/products.json'
-import { Product } from './types/product'
-import { ProductItem } from './components/card/ProductItem'
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { productsFS } from './api/productsFS.json'
+import { Loader } from './components/Loader/Loader'
+import { GoodsList } from './components/GoodsList/GoodsList'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import ButtonGroup from '@mui/material/ButtonGroup'
 import Sort from './components/Sort'
-import IconButton from '@mui/material/IconButton';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import Stack from '@mui/material/Stack';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
-import { Typography } from '@mui/material'
+import Stack from '@mui/material/Stack'
+import { useAppSelector } from './app/hooks'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -29,28 +27,22 @@ const Item = styled(Paper)(({ theme }) => ({
 }))
 
 export const App: React.FC = () => {
-  const count = useSelector((state: RootState) => state.counter.value)
   const dispatch = useDispatch()
+  const isLoading = useAppSelector(state => state.products.isLoading)
+
+  useEffect(() => {
+    dispatch(setIsLoading(true))
+
+    const timer = setTimeout(() => {
+      dispatch(setProducts(productsFS))
+      dispatch(setIsLoading(false))
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <>
-      <div>
-        <div>
-          <button
-            aria-label="Increment value"
-            onClick={() => dispatch(increment())}
-          >
-            Increment
-          </button>
-          <span>{count}</span>
-          <button
-            aria-label="Decrement value"
-            onClick={() => dispatch(decrement())}
-          >
-            Decrement
-          </button>
-        </div>
-      </div>
       <Grid container spacing={1}>
         <Grid item xs={4}>
           <Box
@@ -108,17 +100,12 @@ export const App: React.FC = () => {
       </Grid>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-              {products.map((product: Product) => {
-                return (
-                  <Grid item xs={4} key={product.id}>
-                    <Item >
-                      {product.name}
-                    </Item>
-                  </Grid>
-                )
-              })}
-          </Grid>
+          {isLoading
+            ? <Loader />
+            : (
+              <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                <GoodsList />
+              </Grid>)}
         </Grid>
         <Grid item xs={4}>
           <Box
