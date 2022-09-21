@@ -19,6 +19,12 @@ import { CurrencyTypes } from '../../types/CurrencyTypes'
 export const Filters: React.FC = () => {
   const dispatch = useAppDispatch()
   const { fromPrice, toPrice, status } = useAppSelector(state => state.filter)
+  // const { productsFS[0].currency } = useAppSelector(state => state.products.productsFS)
+  // let currencyOneProduct: CurrencyTypes
+  // if (productsFS && productsFS.length > 0) {
+  //   currencyOneProduct = productsFS[0].currency
+  //   console.log(currencyOneProduct)
+  // }
 
   return (
     <Grid container spacing={1}>
@@ -69,13 +75,23 @@ export const Filters: React.FC = () => {
           }}
         >
           <ButtonGroup variant="text" aria-label="text button group">
-            <Button 
-              onClick={dispatch(setCurrency(CurrencyTypes.UAH))}
+            <Button
+              onClick={() => {
+                // if (currencyOneProduct === CurrencyTypes.USD) {
+                //   dispatch(setCurrency(CurrencyTypes.UAH))
+                // }
+                dispatch(setCurrency(CurrencyTypes.UAH))
+              }}
             >
               UAH
             </Button>
-            <Button 
-              onClick={dispatch(setCurrency(CurrencyTypes.USD))}
+            <Button
+              onClick={() => {
+                // if (currencyOneProduct === CurrencyTypes.UAH) {
+                //   dispatch(setCurrency(CurrencyTypes.USD))
+                // }
+                dispatch(setCurrency(CurrencyTypes.USD))
+              }}
             >
               USD
             </Button>
@@ -83,7 +99,11 @@ export const Filters: React.FC = () => {
         </Box>
       </Grid>
       <Grid item xs={3}>
-        <Box sx={{ minWidth: 120 }}>
+        <Box
+          sx={{
+            minWidth: 120
+          }}
+        >
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">Сортировка</InputLabel>
             <Select
