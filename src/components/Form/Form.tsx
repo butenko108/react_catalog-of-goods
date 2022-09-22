@@ -15,7 +15,7 @@ export const Form: React.FC = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState(0)
-  const [image, setImage] = useState('')
+  const [image, setImage] = useState<File | null>(null)
   const [errMessage, setErrMessage] = useState('')
   const dispatch = useAppDispatch()
   const { productsFS, currency } = useAppSelector(state => state.products)
@@ -30,14 +30,18 @@ export const Form: React.FC = () => {
     setName('')
     setDescription('')
     setPrice(0)
-    setImage('')
+    setImage(null)
   }
 
   const addProduct = (): void => {
+    // if (image !== undefined) {
+    //   return
+    // }
+
     const cloudName = 'dxgimjf1j'
     const baseURL = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
     const formData = new FormData()
-    formData.append('file', image[0])
+    formData.append('file', image)
     formData.append('upload_preset', 'gc3znj7g')
 
     Axios.post(
@@ -65,22 +69,22 @@ export const Form: React.FC = () => {
     ))
   }
 
-  const checkCorrectCurrency = (): void => {
-    if (currency === CurrencyTypes.USD) {
-      setErrMessage('You need to change currency on UAH!')
-    } else {
-      addProduct()
-    }
+  // const checkCorrectCurrency = (): void => {
+  //   if (currency === CurrencyTypes.USD) {
+  //     setErrMessage('You need to change currency on UAH!')
+  //   } else {
+  //     addProduct()
+  //   }
 
-    // if (name === '' ||
-    //  description === '' ||
-    //  price === 0 ||
-    //  image === '') {
-    //   setErrMessage('All fields must be filled!')
-    // } else {
-    //   addProduct()
-    // }
-  }
+  //   if (name === '' ||
+  //    description === '' ||
+  //    price === 0 ||
+  //    image === '') {
+  //     setErrMessage('All fields must be filled!')
+  //   } else {
+  //     addProduct()
+  //   }
+  // }
 
   return (
     <Grid item xs={4}>
@@ -93,69 +97,71 @@ export const Form: React.FC = () => {
         autoComplete="off"
         onSubmit={e => {
           e.preventDefault()
-          checkCorrectCurrency()
+          addProduct()
         }}
       >
-        <div>
-          <TextField
-            id="outlined-required"
-            label="Название"
-            placeholder="Введите название товара"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            required
-          />
-          <TextField
-            required
-            id="outlined-number"
-            label="Цена, UAH"
-            type="number"
-            InputLabelProps={{
-              shrink: true
-            }}
-            placeholder="0"
-            value={price}
-            onChange={e => setPrice(+e.target.value)}
-          />
-          <TextField
-            required
-            id="outlined-required"
-            label="Описание"
-            minRows={10}
-            aria-label="minimum height"
-            style={{ width: 400 }}
-            placeholder="Введите описание товара"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-          />
-          {/* <TextareaAutosize
-            required
-            id="outlined-required"
-            aria-label="minimum height"
-            minRows={3}
-            placeholder="Minimum 3 rows"
-            style={{ width: 200 }}
-          /> */}
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Button variant="contained" component="label">
-              Фотография
-              <input
-                hidden
-                accept="image/*"
-                multiple
-                type="file"
-                required
-                onChange={e => setImage(e.target.files)}
-              />
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-            >
-              Добавить товар
-            </Button>
-          </Stack>
-        </div>
+        <TextField
+          id="outlined-required"
+          label="Название"
+          placeholder="Введите название товара"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          required
+        />
+        <TextField
+          required
+          id="outlined-number"
+          label="Цена, UAH"
+          type="number"
+          InputLabelProps={{
+            shrink: true
+          }}
+          placeholder="0"
+          value={price}
+          onChange={e => setPrice(+e.target.value)}
+        />
+        <TextField
+          required
+          id="outlined-required"
+          label="Описание"
+          // minRows={10}
+          // aria-label="minimum height"
+          // style={{ width: 400 }}
+          placeholder="Введите описание товара"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+        />
+        {/* <TextareaAutosize
+          required
+          id="outlined-required"
+          aria-label="minimum height"
+          minRows={3}
+          placeholder="Minimum 3 rows"
+          style={{ width: 200 }}
+        /> */}
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Button variant="contained" component="label">
+            Фотография
+            <input
+              hidden
+              accept="image/*"
+              multiple
+              type="file"
+              required
+              onChange={(e) => {
+                if (e.target.files !== null) {
+                  setImage(e.target.files[0])
+                }
+              }}
+            />
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+          >
+            Добавить товар
+          </Button>
+        </Stack>
       </Box>
 
       {errMessage !== '' && (
