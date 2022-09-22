@@ -6,12 +6,13 @@ import CardMedia from '@mui/material/CardMedia'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import { useAppSelector } from '../../app/hooks'
+import { useAppSelector, useLocalStorage } from '../../app/hooks'
 import { FilterTypes } from '../../types/FilterTypes'
 import { CurrencyTypes } from '../../types/CurrencyTypes'
 
 export const GoodsList: React.FC = () => {
   const currentCurrency = useAppSelector(state => state.products.currency)
+  const [products, setProducts] = useLocalStorage('products', [])
   const preparedProducts = useAppSelector(state => {
     const { fromPrice, toPrice, status } = state.filter
     const copyProducts = [...state.products.productsFS]
