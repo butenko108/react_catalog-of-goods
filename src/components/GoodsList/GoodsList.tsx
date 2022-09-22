@@ -7,15 +7,33 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import { useAppSelector } from '../../app/hooks'
+// import { useAppSelector, useAppDispatch } from '../../app/hooks'
+// import { setFromPrice, setToPrice } from '../../features/filterSlice'
 import { FilterTypes } from '../../types/FilterTypes'
 import { CurrencyTypes } from '../../types/CurrencyTypes'
+import { Product } from '../../types/Product'
 
 export const GoodsList: React.FC = () => {
-  const preparedProducts = useAppSelector(state => {
-    const { fromPrice, toPrice, status } = state.filter
-    const products = state.products.productsFS
-    const currentCurrency = state.products.currency
+  // const dispatch = useAppDispatch()
+  const { fromPrice, toPrice, status } = useAppSelector(state => state.filter)
+  const products = useAppSelector(state => state.products.productsFS)
+  const currentCurrency = useAppSelector(state => state.products.currency)
 
+  // const settingFiltersByPriceNewProduct = (productsList: Product[]): void => {
+  //   const productsPrices = productsList.map(product => product.price)
+  //   const maxPrice = Math.max(...productsPrices)
+  //   const minPrice = Math.min(...productsPrices)
+
+  //   if (maxPrice > toPrice) {
+  //     dispatch(setToPrice(maxPrice))
+  //   }
+
+  //   if (minPrice < fromPrice) {
+  //     dispatch(setFromPrice(minPrice))
+  //   }
+  // }
+
+  const preparedProducts = (): Product[] => {
     const productsByCurrency = products.map(product => {
       if (product.currency === CurrencyTypes.UAH &&
         currentCurrency === CurrencyTypes.USD) {
@@ -42,6 +60,8 @@ export const GoodsList: React.FC = () => {
       return product
     })
 
+    // settingFiltersByPriceNewProduct(productsByCurrency)
+
     const productsByPrice = productsByCurrency.filter(({ price }) => {
       return price >= fromPrice && price <= toPrice
     })
@@ -59,7 +79,7 @@ export const GoodsList: React.FC = () => {
       default:
         return productsByPrice
     }
-  })
+  }
 
   return (
     <Grid item xs={8}>
@@ -68,7 +88,7 @@ export const GoodsList: React.FC = () => {
         rowSpacing={1}
         columnSpacing={{ xs: 1, sm: 2, md: 3 }}
         >
-        {preparedProducts.map(product => {
+        {preparedProducts().map(product => {
           return (
             <Grid item xs={3} key={product.id}>
               <Card>

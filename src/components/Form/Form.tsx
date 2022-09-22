@@ -7,24 +7,35 @@ import Stack from '@mui/material/Stack'
 import { useAppSelector, useAppDispatch } from '../../app/hooks'
 import Axios from 'axios'
 import { Product } from '../../types/Product'
-import { CurrencyTypes } from '../../types/CurrencyTypes'
 import { setProducts } from '../../features/productsSlice'
-import { Snackbars } from '../Snackbars/Snackbars'
+import { setFromPrice, setToPrice } from '../../features/filterSlice'
+import { Alerts } from '../Alerts/Alerts'
 
 export const Form: React.FC = () => {
+  const dispatch = useAppDispatch()
+  const { productsFS, currency } = useAppSelector(state => state.products)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState(0)
   const [image, setImage] = useState<File | null>(null)
-  const [errMessage, setErrMessage] = useState('')
-  const dispatch = useAppDispatch()
-  const { productsFS, currency } = useAppSelector(state => state.products)
+  const [isErrName, setIsErrName] = useState(false)
+  const [isErrDescription, setIsErrDescription] = useState(false)
+  const [isErrPrice, setIsErrPrice] = useState(false)
+  const [isErrImage, setIsErrImage] = useState(false)
+  const [successMessage, setSuccessMessage] = useState(false)
+  const [errMessage, setErrMessage] = useState(false)
 
   useEffect(() => {
-    const timerId = setTimeout(() => (setErrMessage('')), 3000)
+    const timerId = setTimeout(() => (setErrMessage(false)), 3000)
 
     return () => clearInterval(timerId)
   }, [errMessage])
+
+  useEffect(() => {
+    const timerId = setTimeout(() => (setSuccessMessage(false)), 5000)
+
+    return () => clearInterval(timerId)
+  }, [successMessage])
 
   const clearForm = (): void => {
     setName('')
@@ -33,10 +44,24 @@ export const Form: React.FC = () => {
     setImage(null)
   }
 
+  const settingFiltersByPriceNewProduct = (): void => {
+    const productsPrices = productsFS.map(product => product.price)
+    const maxPrice = Math.max(...productsPrices)
+    const minPrice = Math.min(...productsPrices)
+
+    if (price > maxPrice) {
+      dispatch(setToPrice(price))
+    }
+
+    if (price < minPrice) {
+      dispatch(setFromPrice(price))
+    }
+  }
+
   const addProduct = (): void => {
-    // if (image !== undefined) {
-    //   return
-    // }
+    if (image === null) {
+      return
+    }
 
     const cloudName = 'dxgimjf1j'
     const baseURL = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
@@ -50,41 +75,51 @@ export const Form: React.FC = () => {
     ).then(response => {
       const productsId = productsFS.map(product => product.id)
       const lastProductId = Math.max(...productsId)
-
       const newProduct: Product = {
         id: lastProductId + 1,
         name,
         price,
         image: response.data.url,
         description,
-        currency: CurrencyTypes.UAH
+        currency
       }
 
       const newProductsList = [...productsFS, newProduct]
       dispatch(setProducts(newProductsList))
+      settingFiltersByPriceNewProduct()
       clearForm()
-      // добавить функционал, который будет показывать сообщение о успешно добавленном товаре
+      setSuccessMessage(true)
     }).catch(() => (
-      new Error('Error upload image on Cloudinary')
+      setErrMessage(true)
     ))
   }
 
-  // const checkCorrectCurrency = (): void => {
-  //   if (currency === CurrencyTypes.USD) {
-  //     setErrMessage('You need to change currency on UAH!')
-  //   } else {
-  //     addProduct()
-  //   }
+  const validationForm = (): void => {
+    if (name === '') {
+      setIsErrName(true)
+    }
 
-  //   if (name === '' ||
-  //    description === '' ||
-  //    price === 0 ||
-  //    image === '') {
-  //     setErrMessage('All fields must be filled!')
-  //   } else {
-  //     addProduct()
-  //   }
-  // }
+    if (description === '') {
+      setIsErrDescription(true)
+    }
+
+    if (price <= 0) {
+      setIsErrPrice(true)
+    }
+
+    if (image === null) {
+      setIsErrImage(true)
+    }
+
+    if (isErrName ||
+    isErrDescription ||
+    isErrPrice ||
+    isErrImage) {
+      return
+    }
+
+    addProduct()
+  }
 
   return (
     <Grid item xs={4}>
@@ -97,7 +132,7 @@ export const Form: React.FC = () => {
         autoComplete="off"
         onSubmit={e => {
           e.preventDefault()
-          addProduct()
+          validationForm()
         }}
       >
         <TextField
@@ -105,20 +140,32 @@ export const Form: React.FC = () => {
           label="Название"
           placeholder="Введите название товара"
           value={name}
-          onChange={e => setName(e.target.value)}
-          required
+          onChange={e => {
+            setName(e.target.value)
+            setIsErrName(false)
+          }}
+            error={isErrName}
+            helperText={isErrName && ('Заполните поле')}
         />
         <TextField
           required
           id="outlined-number"
-          label="Цена, UAH"
+          label="Цена"
           type="number"
           InputLabelProps={{
             shrink: true
           }}
           placeholder="0"
           value={price}
-          onChange={e => setPrice(+e.target.value)}
+          onChange={e => {
+            setPrice(+e.target.value)
+
+            if (+e.target.value > 0) {
+              setIsErrPrice(false)
+            }
+          }}
+          error={isErrPrice}
+          helperText={isErrPrice && ('Укажите цену > 0')}
         />
         <TextField
           required
@@ -129,7 +176,12 @@ export const Form: React.FC = () => {
           // style={{ width: 400 }}
           placeholder="Введите описание товара"
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={e => {
+            setDescription(e.target.value)
+            setIsErrDescription(false)
+          }}
+          error={isErrDescription}
+          helperText={isErrDescription && ('Заполните поле')}
         />
         {/* <TextareaAutosize
           required
@@ -140,8 +192,13 @@ export const Form: React.FC = () => {
           style={{ width: 200 }}
         /> */}
         <Stack direction="row" alignItems="center" spacing={2}>
-          <Button variant="contained" component="label">
-            Фотография
+          <Button
+            variant="contained"
+            component="label"
+            // color="error"
+            color={isErrImage ? ('error') : (undefined)}
+          >
+            Загрузить фото
             <input
               hidden
               accept="image/*"
@@ -151,6 +208,7 @@ export const Form: React.FC = () => {
               onChange={(e) => {
                 if (e.target.files !== null) {
                   setImage(e.target.files[0])
+                  setIsErrImage(false)
                 }
               }}
             />
@@ -164,12 +222,12 @@ export const Form: React.FC = () => {
         </Stack>
       </Box>
 
-      {errMessage !== '' && (
-        <Snackbars
-          errMessage={errMessage}
-          setErrMessage={setErrMessage}
-        />
-      )}
+      <Alerts
+        successMessage={successMessage}
+        setSuccessMessage={setSuccessMessage}
+        errMessage={errMessage}
+        setErrMessage={setErrMessage}
+      />
     </Grid>
   )
 }
