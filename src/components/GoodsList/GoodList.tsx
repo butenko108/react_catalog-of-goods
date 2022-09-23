@@ -74,10 +74,10 @@ export const GoogList: React.FC = () => {
           return (
             <Grid
               item
-              xs={6}
+              xs={12}
               sm={4}
-              lg={4}
-              xl={3}
+              lg={3}
+              xl={2}
               key={product.id}
             >
               <GoodItem product={product} />

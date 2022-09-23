@@ -30,8 +30,6 @@ export const Form: React.FC = () => {
   const [filtersByPriceIsChanging, setFiltersByPriceIsChanging] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  console.log(image)
-
   useEffect(() => {
     const timerId = setTimeout(() => (setErrMessage(false)), 5000)
 
