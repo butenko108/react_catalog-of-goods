@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import SendIcon from '@mui/icons-material/Send'
 import AddAPhotoOutlined from '@mui/icons-material/AddAPhotoOutlined'
+import DoneOutlined from '@mui/icons-material/DoneOutlined'
 import { LoadingButton } from '@mui/lab'
 import { useAppSelector, useAppDispatch } from '../../app/hooks'
 import Axios from 'axios'
@@ -28,6 +29,8 @@ export const Form: React.FC = () => {
   const [errMessage, setErrMessage] = useState(false)
   const [filtersByPriceIsChanging, setFiltersByPriceIsChanging] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  console.log(image)
 
   useEffect(() => {
     const timerId = setTimeout(() => (setErrMessage(false)), 5000)
@@ -134,6 +137,16 @@ export const Form: React.FC = () => {
     addProduct()
   }
 
+  const changeColorImageButton = (): 'error' | 'success' | undefined => {
+    if (isErrImage) {
+      return 'error'
+    }
+
+    if (image !== null) {
+      return 'success'
+    }
+  }
+
   return (
     <>
       <Typography
@@ -205,10 +218,10 @@ export const Form: React.FC = () => {
         <Button
           variant="contained"
           component="label"
-          color={isErrImage ? ('error') : (undefined)}
-          endIcon={<AddAPhotoOutlined />}
+          color={changeColorImageButton()}
+          endIcon={image !== null ? (<DoneOutlined />) : (<AddAPhotoOutlined />)}
         >
-          Загрузить фото
+          {image !== null ? ('Фото загружено') : ('Загрузить фото')}
           <input
             hidden
             accept="image/*"
