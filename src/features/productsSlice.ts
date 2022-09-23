@@ -2,7 +2,9 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { Product } from '../types/Product'
 import { CurrencyTypes } from '../types/CurrencyTypes'
-import { productsFS } from '../api/productsFS.json'
+import products from '../api/productsFS.json'
+
+const { productsFS } = products
 
 export interface ProductsState {
   isLoading: boolean

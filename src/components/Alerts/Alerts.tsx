@@ -14,13 +14,17 @@ interface Props {
   setSuccessMessage: (v: boolean) => void
   errMessage: boolean
   setErrMessage: (v: boolean) => void
+  filtersByPriceIsChanging: boolean
+  setFiltersByPriceIsChanging: (v: boolean) => void
 }
 
 export const Alerts: React.FC<Props> = ({
   successMessage,
   setSuccessMessage,
   errMessage,
-  setErrMessage
+  setErrMessage,
+  filtersByPriceIsChanging,
+  setFiltersByPriceIsChanging
 }) => {
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
@@ -39,6 +43,15 @@ export const Alerts: React.FC<Props> = ({
           onClose={() => setSuccessMessage(false)}
         >
           Товар успешно добавлен в каталог
+        </Alert>
+      )}
+
+      {filtersByPriceIsChanging && (
+        <Alert
+          severity="warning"
+          onClose={() => setFiltersByPriceIsChanging(false)}
+        >
+          Если товары не будут отображаться в каталоге при изменении валюты, попробуйте поставить фильтр по цене от 0 (до 100 000...)
         </Alert>
       )}
     </Stack>

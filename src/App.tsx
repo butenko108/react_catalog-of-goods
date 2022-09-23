@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
-import Grid from '@mui/material/Grid'
 import './App.css'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
 import { setIsLoading } from './features/productsSlice'
 import { useAppSelector, useAppDispatch } from './app/hooks'
-import { Filters } from './components/Filters/Filters'
 import { Loader } from './components/Loader/Loader'
-import { GoodsList } from './components/GoodsList/GoodsList'
+import { Catalog } from './components/Catalog/Catalog'
 import { Form } from './components/Form/Form'
 
 export const App: React.FC = () => {
@@ -24,16 +24,24 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <Filters />
-      <Grid container spacing={2}>
-        {isLoading
-          ? <Loader />
-          : (<>
-              <GoodsList />
+      {isLoading
+        ? (
+          <Box sx={{
+            relative: 'relative'
+          }}>
+            <Loader />
+          </Box>
+          )
+        : (
+          <Grid container spacing={4} sx={{ padding: '10px' }}>
+            <Grid item xs={9}>
+              <Catalog />
+            </Grid>
+            <Grid item xs={3}>
               <Form />
-            </>)
-        }
-      </Grid>
+            </Grid>
+          </Grid>
+          )}
     </>
   )
 }

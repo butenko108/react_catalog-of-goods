@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import SendIcon from '@mui/icons-material/Send'
+import AddAPhotoOutlined from '@mui/icons-material/AddAPhotoOutlined'
+import { LoadingButton } from '@mui/lab'
 import { useAppSelector, useAppDispatch } from '../../app/hooks'
 import Axios from 'axios'
 import { Product } from '../../types/Product'
@@ -16,7 +18,7 @@ export const Form: React.FC = () => {
   const { productsFS, currency } = useAppSelector(state => state.products)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [price, setPrice] = useState(0)
+  const [price, setPrice] = useState(1000)
   const [image, setImage] = useState<File | null>(null)
   const [isErrName, setIsErrName] = useState(false)
   const [isErrDescription, setIsErrDescription] = useState(false)
@@ -24,9 +26,11 @@ export const Form: React.FC = () => {
   const [isErrImage, setIsErrImage] = useState(false)
   const [successMessage, setSuccessMessage] = useState(false)
   const [errMessage, setErrMessage] = useState(false)
+  const [filtersByPriceIsChanging, setFiltersByPriceIsChanging] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    const timerId = setTimeout(() => (setErrMessage(false)), 3000)
+    const timerId = setTimeout(() => (setErrMessage(false)), 5000)
 
     return () => clearInterval(timerId)
   }, [errMessage])
@@ -37,10 +41,17 @@ export const Form: React.FC = () => {
     return () => clearInterval(timerId)
   }, [successMessage])
 
+  useEffect(() => {
+    setFiltersByPriceIsChanging(true)
+    const timerId = setTimeout(() => (setFiltersByPriceIsChanging(false)), 10000)
+
+    return () => clearInterval(timerId)
+  }, [currency])
+
   const clearForm = (): void => {
     setName('')
     setDescription('')
-    setPrice(0)
+    setPrice(1000)
     setImage(null)
   }
 
@@ -62,7 +73,7 @@ export const Form: React.FC = () => {
     if (image === null) {
       return
     }
-
+    setIsLoading(true)
     const cloudName = 'dxgimjf1j'
     const baseURL = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
     const formData = new FormData()
@@ -91,6 +102,8 @@ export const Form: React.FC = () => {
       setSuccessMessage(true)
     }).catch(() => (
       setErrMessage(true)
+    )).finally(() => (
+      setIsLoading(false)
     ))
   }
 
@@ -122,17 +135,28 @@ export const Form: React.FC = () => {
   }
 
   return (
-    <Grid item xs={4}>
+    <>
+      <Typography
+        variant="h4"
+        sx={{
+          marginBottom: '35px'
+        }}
+      >
+        Добавление нового товара
+      </Typography>
       <Box
         component="form"
-        sx={{
-          '& .MuiTextField-root': { m: 1, width: '25ch' }
-        }}
         noValidate
         autoComplete="off"
         onSubmit={e => {
           e.preventDefault()
           validationForm()
+        }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          marginBottom: '40px'
         }}
       >
         <TextField
@@ -148,7 +172,6 @@ export const Form: React.FC = () => {
             helperText={isErrName && ('Заполните поле')}
         />
         <TextField
-          required
           id="outlined-number"
           label="Цена"
           type="number"
@@ -168,12 +191,8 @@ export const Form: React.FC = () => {
           helperText={isErrPrice && ('Укажите цену > 0')}
         />
         <TextField
-          required
           id="outlined-required"
           label="Описание"
-          // minRows={10}
-          // aria-label="minimum height"
-          // style={{ width: 400 }}
           placeholder="Введите описание товара"
           value={description}
           onChange={e => {
@@ -183,43 +202,34 @@ export const Form: React.FC = () => {
           error={isErrDescription}
           helperText={isErrDescription && ('Заполните поле')}
         />
-        {/* <TextareaAutosize
-          required
-          id="outlined-required"
-          aria-label="minimum height"
-          minRows={3}
-          placeholder="Minimum 3 rows"
-          style={{ width: 200 }}
-        /> */}
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Button
-            variant="contained"
-            component="label"
-            // color="error"
-            color={isErrImage ? ('error') : (undefined)}
-          >
-            Загрузить фото
-            <input
-              hidden
-              accept="image/*"
-              multiple
-              type="file"
-              required
-              onChange={(e) => {
-                if (e.target.files !== null) {
-                  setImage(e.target.files[0])
-                  setIsErrImage(false)
-                }
-              }}
-            />
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-          >
-            Добавить товар
-          </Button>
-        </Stack>
+        <Button
+          variant="contained"
+          component="label"
+          color={isErrImage ? ('error') : (undefined)}
+          endIcon={<AddAPhotoOutlined />}
+        >
+          Загрузить фото
+          <input
+            hidden
+            accept="image/*"
+            multiple
+            type="file"
+            onChange={(e) => {
+              if (e.target.files !== null) {
+                setImage(e.target.files[0])
+                setIsErrImage(false)
+              }
+            }}
+          />
+        </Button>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          endIcon={<SendIcon />}
+          loading={isLoading}
+        >
+          Добавить товар
+        </LoadingButton>
       </Box>
 
       <Alerts
@@ -227,7 +237,10 @@ export const Form: React.FC = () => {
         setSuccessMessage={setSuccessMessage}
         errMessage={errMessage}
         setErrMessage={setErrMessage}
+        filtersByPriceIsChanging={filtersByPriceIsChanging}
+        setFiltersByPriceIsChanging={setFiltersByPriceIsChanging}
       />
-    </Grid>
+    </>
+
   )
 }

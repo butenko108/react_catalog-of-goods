@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { FilterTypes } from '../types/FilterTypes'
-import { productsFS } from '../api/productsFS.json'
+import products from '../api/productsFS.json'
 
-const products = productsFS
-const allPrices = products.map(product => +product.price)
+const { productsFS } = products
+const allPrices = productsFS.map(product => +product.price)
 const minPrice = Math.min(...allPrices)
 const maxPrice = Math.max(...allPrices)
 
