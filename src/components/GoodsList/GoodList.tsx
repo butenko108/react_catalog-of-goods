@@ -67,7 +67,7 @@ export const GoogList: React.FC = () => {
         container
         spacing={3}
         sx={{
-          padding: '5px 0px 5px'
+          padding: '5px 10px 5px'
         }}
       >
         {preparedProducts().map(product => {

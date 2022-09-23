@@ -21,7 +21,7 @@ export const GoodItem: React.FC<Props> = ({ product }) => {
         alt={product.name}
         sx={{
           objectFit: 'contain',
-          padding: '10px 10px 0',
+          // padding: '10px 10px 0',
           marginBottom: '30px'
         }}
       />
