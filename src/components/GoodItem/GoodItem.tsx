@@ -5,14 +5,24 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import AddShoppingCartOutlined from '@mui/icons-material/AddShoppingCartOutlined'
 import Box from '@mui/material/Box'
+import { makeStyles } from '@material-ui/core/styles'
 import { Product } from '../../types/Product'
 import { CurrencyTypes } from '../../types/CurrencyTypes'
+
+const useStyles = makeStyles(() => ({
+  wrapIcon: {
+    alignItems: 'center',
+    display: 'flex'
+  }
+}))
 
 interface Props {
   product: Product
 }
 
 export const GoodItem: React.FC<Props> = ({ product }) => {
+  const classes = useStyles()
+
   const changeIconCurrency = (
     currency: CurrencyTypes
   ): string => {
@@ -29,7 +39,11 @@ export const GoodItem: React.FC<Props> = ({ product }) => {
   }
 
   return (
-    <Card>
+    <Card
+      sx={{
+        padding: '10px'
+      }}
+    >
       <CardMedia
         component="img"
         height="135"
@@ -42,48 +56,51 @@ export const GoodItem: React.FC<Props> = ({ product }) => {
       />
       <Box
         sx={{
-          padding: '0 15px'
+          marginBottom: '30px'
         }}
       >
-        <Box
+        <Typography gutterBottom variant="subtitle2" component="div" noWrap={true}>
+          {product.name}
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
           sx={{
-            marginBottom: '30px'
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: '1'
           }}
         >
-          <Typography gutterBottom variant="subtitle2" component="div" noWrap={true}>
-            {product.name}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: '1'
-            }}
-          >
-            {product.description}
-          </Typography>
-        </Box>
-        <Box
+          {product.description}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItem: 'center'
+        }}
+      >
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="div"
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '20px'
+            marginBottom: '0'
           }}
         >
-          <Typography gutterBottom variant="h6" component="div">
-            {`${product.price}${changeIconCurrency(product.currency as CurrencyTypes)}`}
-          </Typography>
-          <Button
-            size="small"
-            variant="contained"
-            endIcon={<AddShoppingCartOutlined />}
-          >
-            Buy
-          </Button>
-        </Box>
+          {`${product.price}${changeIconCurrency(product.currency as CurrencyTypes)}`}
+        </Typography>
+        <Button
+          size="small"
+          variant="contained"
+          className={classes.wrapIcon}
+          disableElevation
+        >
+          Buy
+          <AddShoppingCartOutlined />
+        </Button>
       </Box>
     </Card>
   )
